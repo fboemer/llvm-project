@@ -80,6 +80,10 @@ class FloatUnaryOp<string mnemonic, list<OpTrait> traits = []> :
     UnaryOpSameOperandAndResultType<mnemonic, traits>,
     Arguments<(ins FloatLike:$operand)>;
 
+class IntUnaryOp<string mnemonic, list<OpTrain> traints = []> :
+    UnaryOpSameOperandAndResultType<mnemonic, traits>,
+    Arguments<(ins IntegerLike:$operand)>;
+
 // Base class for standard arithmetic operations.  Requires operands and
 // results to be of the same type, but does not constrain them to specific
 // types.  Individual classes will have `lhs` and `rhs` accessor to operands.
