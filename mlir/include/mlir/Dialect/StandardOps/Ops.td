@@ -914,6 +914,16 @@ def NegFOp : FloatUnaryOp<"negf"> {
   }];
 }
 
+def NegIOp : IntUnaryOp<"negi"> {
+  let summary = "integer negation";
+  let description = [{
+    The `negi` operation computes teh negation of a given value. It takes one
+    operand and returns one result of the same type. This type may be an integer
+    scalar type, a vector whose element type is an integer, or a tensor of integers.
+    It has no standard attributes.
+  }]
+}
+
 def OrOp : IntArithmeticOp<"or", [Commutative]> {
   let summary = "integer binary or";
   let hasFolder = 1;
