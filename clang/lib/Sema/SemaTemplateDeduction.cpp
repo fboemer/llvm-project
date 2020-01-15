@@ -643,6 +643,10 @@ static TemplateParameter makeTemplateParameter(Decl *D) {
 
 /// If \p Param is an expanded parameter pack, get the number of expansions.
 static Optional<unsigned> getExpandedPackSize(NamedDecl *Param) {
+  if (auto *TTP = dyn_cast<TemplateTypeParmDecl>(Param))
+    if (TTP->isExpandedParameterPack())
+      return TTP->getNumExpansionParameters();
+
   if (auto *NTTP = dyn_cast<NonTypeTemplateParmDecl>(Param))
     if (NTTP->isExpandedParameterPack())
       return NTTP->getNumExpansionTypes();
@@ -4542,11 +4546,12 @@ Sema::DeduceAutoType(TypeLoc Type, Expr *&Init, QualType &Result,
 
   // Build template<class TemplParam> void Func(FuncParam);
   TemplateTypeParmDecl *TemplParam = TemplateTypeParmDecl::Create(
-      Context, nullptr, SourceLocation(), Loc, Depth, 0, nullptr, false, false);
+      Context, nullptr, SourceLocation(), Loc, Depth, 0, nullptr, false, false,
+      false);
   QualType TemplArg = QualType(TemplParam->getTypeForDecl(), 0);
   NamedDecl *TemplParamPtr = TemplParam;
   FixedSizeTemplateParameterListStorage<1, false> TemplateParamsSt(
-      Loc, Loc, TemplParamPtr, Loc, nullptr);
+      Context, Loc, Loc, TemplParamPtr, Loc, nullptr);
 
   QualType FuncParam =
       SubstituteDeducedTypeTransform(*this, TemplArg, /*UseTypeSugar*/false)
@@ -5276,9 +5281,8 @@ Sema::getMoreSpecializedPartialSpecialization(
       return nullptr;
     if (IsAtLeastAsConstrained(PS2, AC2, PS1, AC1, AtLeastAsConstrained2))
       return nullptr;
-    if (AtLeastAsConstrained1 == AtLeastAsConstrained2) {
+    if (AtLeastAsConstrained1 == AtLeastAsConstrained2)
       return nullptr;
-    }
     return AtLeastAsConstrained1 ? PS1 : PS2;
   }
 
@@ -5352,7 +5356,8 @@ bool Sema::isTemplateTemplateParameterAtLeastAsSpecializedAs(
     SFINAETrap Trap(*this);
 
     Context.getInjectedTemplateArgs(P, PArgs);
-    TemplateArgumentListInfo PArgList(P->getLAngleLoc(), P->getRAngleLoc());
+    TemplateArgumentListInfo PArgList(P->getLAngleLoc(),
+                                      P->getRAngleLoc());
     for (unsigned I = 0, N = P->size(); I != N; ++I) {
       // Unwrap packs that getInjectedTemplateArgs wrapped around pack
       // expansions, to form an "as written" argument list.
@@ -5384,46 +5389,40 @@ bool Sema::isTemplateTemplateParameterAtLeastAsSpecializedAs(
   return isAtLeastAsSpecializedAs(*this, PType, AType, AArg, Info);
 }
 
-struct OccurringTemplateParameterFinder :
-    RecursiveASTVisitor<OccurringTemplateParameterFinder> {
-  llvm::SmallBitVector &OccurringIndices;
+namespace {
+struct MarkUsedTemplateParameterVisitor :
+    RecursiveASTVisitor<MarkUsedTemplateParameterVisitor> {
+  llvm::SmallBitVector &Used;
+  unsigned Depth;
 
-  OccurringTemplateParameterFinder(llvm::SmallBitVector &OccurringIndices)
-      : OccurringIndices(OccurringIndices) { }
+  MarkUsedTemplateParameterVisitor(llvm::SmallBitVector &Used,
+                                   unsigned Depth)
+      : Used(Used), Depth(Depth) { }
 
   bool VisitTemplateTypeParmType(TemplateTypeParmType *T) {
-    assert(T->getDepth() == 0 && "This assumes that we allow concepts at "
-                                 "namespace scope only");
-    noteParameter(T->getIndex());
+    if (T->getDepth() == Depth)
+      Used[T->getIndex()] = true;
     return true;
   }
 
   bool TraverseTemplateName(TemplateName Template) {
     if (auto *TTP =
-            dyn_cast<TemplateTemplateParmDecl>(Template.getAsTemplateDecl())) {
-      assert(TTP->getDepth() == 0 && "This assumes that we allow concepts at "
-                                     "namespace scope only");
-      noteParameter(TTP->getIndex());
-    }
-    RecursiveASTVisitor<OccurringTemplateParameterFinder>::
+            dyn_cast<TemplateTemplateParmDecl>(Template.getAsTemplateDecl()))
+      if (TTP->getDepth() == Depth)
+        Used[TTP->getIndex()] = true;
+    RecursiveASTVisitor<MarkUsedTemplateParameterVisitor>::
         TraverseTemplateName(Template);
     return true;
   }
 
   bool VisitDeclRefExpr(DeclRefExpr *E) {
-    if (auto *NTTP = dyn_cast<NonTypeTemplateParmDecl>(E->getDecl())) {
-      assert(NTTP->getDepth() == 0 && "This assumes that we allow concepts at "
-                                      "namespace scope only");
-      noteParameter(NTTP->getIndex());
-    }
+    if (auto *NTTP = dyn_cast<NonTypeTemplateParmDecl>(E->getDecl()))
+      if (NTTP->getDepth() == Depth)
+        Used[NTTP->getIndex()] = true;
     return true;
   }
-
-protected:
-  void noteParameter(unsigned Index) {
-    OccurringIndices.set(Index);
-  }
 };
+}
 
 /// Mark the template parameters that are used by the given
 /// expression.
@@ -5434,7 +5433,8 @@ MarkUsedTemplateParameters(ASTContext &Ctx,
                            unsigned Depth,
                            llvm::SmallBitVector &Used) {
   if (!OnlyDeduced) {
-    OccurringTemplateParameterFinder(Used).TraverseStmt(const_cast<Expr *>(E));
+    MarkUsedTemplateParameterVisitor(Used, Depth)
+        .TraverseStmt(const_cast<Expr *>(E));
     return;
   }
 

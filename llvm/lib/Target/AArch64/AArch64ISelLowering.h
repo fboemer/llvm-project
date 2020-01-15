@@ -212,6 +212,7 @@ enum NodeType : unsigned {
   TBL,
 
   INSR,
+  PTEST,
   PTRUE,
 
   // Unsigned gather loads.
@@ -696,6 +697,8 @@ private:
   SDValue LowerGlobalTLSAddress(SDValue Op, SelectionDAG &DAG) const;
   SDValue LowerDarwinGlobalTLSAddress(SDValue Op, SelectionDAG &DAG) const;
   SDValue LowerELFGlobalTLSAddress(SDValue Op, SelectionDAG &DAG) const;
+  SDValue LowerELFTLSLocalExec(const GlobalValue *GV, SDValue ThreadBase,
+                               const SDLoc &DL, SelectionDAG &DAG) const;
   SDValue LowerELFTLSDescCallSeq(SDValue SymAddr, const SDLoc &DL,
                                  SelectionDAG &DAG) const;
   SDValue LowerWindowsGlobalTLSAddress(SDValue Op, SelectionDAG &DAG) const;
