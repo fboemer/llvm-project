@@ -561,6 +561,32 @@ The `exp` operation takes one operand and returns one result of the same type.
 This type may be a float scalar type, a vector whose element type is float, or a
 tensor of floats. It has no standard attributes.
 
+### 'negf' operation
+
+Syntax:
+
+```
+operation ::= ssa-id `=` `negf` ssa-use `:` type
+```
+
+Examples:
+
+```mlir
+// Scalar negation value.
+%a = negf %b : f64
+
+// SIMD vector element-wise negation value.
+%f = negf %g : vector<4xf32>
+
+// Tensor element-wise negation value.
+%x = negf %y : tensor<4x?xf8>
+```
+
+The `negf` operation computes the negation of a given value. It takes one
+operand and returns one result of the same type. This type may be a float
+scalar type, a vector whose element type is float, or a tensor of floats. It
+has no standard attributes.
+
 ### 'negi' operation
 
 Syntax:
@@ -587,31 +613,6 @@ operand and returns one result of the same type. This type may be an integer
 scalar type, a vector whose element type is float, or a tensor of integers. It
 has no standard attributes.
 
-### 'negf' operation
-
-Syntax:
-
-```
-operation ::= ssa-id `=` `negf` ssa-use `:` type
-```
-
-Examples:
-
-```mlir
-// Scalar negation value.
-%a = negf %b : f64
-
-// SIMD vector element-wise negation value.
-%f = negf %g : vector<4xf32>
-
-// Tensor element-wise negation value.
-%x = negf %y : tensor<4x?xf8>
-```
-
-The `negf` operation computes the negation of a given value. It takes one
-operand and returns one result of the same type. This type may be a float
-scalar type, a vector whose element type is float, or a tensor of floats. It
-has no standard attributes.
 
 ### 'tanh' operation
 
