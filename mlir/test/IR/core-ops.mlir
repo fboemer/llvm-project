@@ -425,74 +425,83 @@ func @standard_instrs(tensor<4x4x?xf32>, f32, i32, index, i64, f16) {
   // CHECK: %{{[0-9]+}} = negf %arg0 : tensor<4x4x?xf32>
   %115 = negf %t : tensor<4x4x?xf32>
 
-  // CHECK: %{{[0-9]+}} = copysign %arg1, %arg1 : f32
-  %116 = "std.copysign"(%f, %f) : (f32, f32) -> f32
+  // CHECK: %{{[0-9]+}} = negi %arg1 : i32
+  %116 = "std.negi"(%i) : (i32) -> i32
+
+  // CHECK: %{{[0-9]+}} = negi %arg1 : i32
+  %117 = negi %i : i32
+
+  // CHECK: %{{[0-9]+}} = negi %cst_5 : vector<42xi32>
+  %118 = negi %vci32 : vector<42xi32>
 
   // CHECK: %{{[0-9]+}} = copysign %arg1, %arg1 : f32
-  %117 = copysign %f, %f : f32
+  %119 = "std.copysign"(%f, %f) : (f32, f32) -> f32
+
+  // CHECK: %{{[0-9]+}} = copysign %arg1, %arg1 : f32
+  %120 = copysign %f, %f : f32
 
   // CHECK: %{{[0-9]+}} = copysign %cst_8, %cst_8 : vector<4xf32>
-  %118 = copysign %vcf32, %vcf32 : vector<4xf32>
+  %121 = copysign %vcf32, %vcf32 : vector<4xf32>
 
   // CHECK: %{{[0-9]+}} = copysign %arg0, %arg0 : tensor<4x4x?xf32>
-  %119 = copysign %t, %t : tensor<4x4x?xf32>
+  %122 = copysign %t, %t : tensor<4x4x?xf32>
 
   // CHECK: %{{[0-9]+}} = tanh %arg1 : f32
-  %120 = "std.tanh"(%f) : (f32) -> f32
+  %123 = "std.tanh"(%f) : (f32) -> f32
 
   // CHECK: %{{[0-9]+}} = tanh %arg1 : f32
-  %121 = tanh %f : f32
+  %124 = tanh %f : f32
 
   // CHECK: %{{[0-9]+}} = tanh %cst_8 : vector<4xf32>
-  %122 = tanh %vcf32 : vector<4xf32>
+  %125 = tanh %vcf32 : vector<4xf32>
 
   // CHECK: %{{[0-9]+}} = tanh %arg0 : tensor<4x4x?xf32>
-  %123 = tanh %t : tensor<4x4x?xf32>
+  %126 = tanh %t : tensor<4x4x?xf32>
 
   // CHECK: %{{[0-9]+}} = shift_left %arg2, %arg2 : i32
-  %124 = "std.shift_left"(%i, %i) : (i32, i32) -> i32
+  %127 = "std.shift_left"(%i, %i) : (i32, i32) -> i32
 
   // CHECK:%{{[0-9]+}} = shift_left %4, %4 : i32
-  %125 = shift_left %i2, %i2 : i32
+  %128 = shift_left %i2, %i2 : i32
 
   // CHECK: %{{[0-9]+}} = shift_left %arg3, %arg3 : index
-  %126 = shift_left %idx, %idx : index
+  %129 = shift_left %idx, %idx : index
 
   // CHECK: %{{[0-9]+}} = shift_left %cst_5, %cst_5 : vector<42xi32>
-  %127 = shift_left %vci32, %vci32 : vector<42 x i32>
+  %130 = shift_left %vci32, %vci32 : vector<42 x i32>
 
   // CHECK: %{{[0-9]+}} = shift_left %cst_4, %cst_4 : tensor<42xi32>
-  %128 = shift_left %tci32, %tci32 : tensor<42 x i32>
+  %131 = shift_left %tci32, %tci32 : tensor<42 x i32>
 
   // CHECK: %{{[0-9]+}} = shift_right_signed %arg2, %arg2 : i32
-  %129 = "std.shift_right_signed"(%i, %i) : (i32, i32) -> i32
+  %132 = "std.shift_right_signed"(%i, %i) : (i32, i32) -> i32
 
   // CHECK:%{{[0-9]+}} = shift_right_signed %4, %4 : i32
-  %130 = shift_right_signed %i2, %i2 : i32
+  %133 = shift_right_signed %i2, %i2 : i32
 
   // CHECK: %{{[0-9]+}} = shift_right_signed %arg3, %arg3 : index
-  %131 = shift_right_signed %idx, %idx : index
+  %134 = shift_right_signed %idx, %idx : index
 
   // CHECK: %{{[0-9]+}} = shift_right_signed %cst_5, %cst_5 : vector<42xi32>
-  %132 = shift_right_signed %vci32, %vci32 : vector<42 x i32>
+  %135 = shift_right_signed %vci32, %vci32 : vector<42 x i32>
 
   // CHECK: %{{[0-9]+}} = shift_right_signed %cst_4, %cst_4 : tensor<42xi32>
-  %133 = shift_right_signed %tci32, %tci32 : tensor<42 x i32>
+  %136 = shift_right_signed %tci32, %tci32 : tensor<42 x i32>
 
   // CHECK: %{{[0-9]+}} = shift_right_unsigned %arg2, %arg2 : i32
-  %134 = "std.shift_right_unsigned"(%i, %i) : (i32, i32) -> i32
+  %137 = "std.shift_right_unsigned"(%i, %i) : (i32, i32) -> i32
 
   // CHECK:%{{[0-9]+}} = shift_right_unsigned %4, %4 : i32
-  %135 = shift_right_unsigned %i2, %i2 : i32
+  %138 = shift_right_unsigned %i2, %i2 : i32
 
   // CHECK: %{{[0-9]+}} = shift_right_unsigned %arg3, %arg3 : index
-  %136 = shift_right_unsigned %idx, %idx : index
+  %139 = shift_right_unsigned %idx, %idx : index
 
   // CHECK: %{{[0-9]+}} = shift_right_unsigned %cst_5, %cst_5 : vector<42xi32>
-  %137 = shift_right_unsigned %vci32, %vci32 : vector<42 x i32>
+  %140 = shift_right_unsigned %vci32, %vci32 : vector<42 x i32>
 
   // CHECK: %{{[0-9]+}} = shift_right_unsigned %cst_4, %cst_4 : tensor<42xi32>
-  %138 = shift_right_unsigned %tci32, %tci32 : tensor<42 x i32>
+  %141 = shift_right_unsigned %tci32, %tci32 : tensor<42 x i32>
 
   return
 }
