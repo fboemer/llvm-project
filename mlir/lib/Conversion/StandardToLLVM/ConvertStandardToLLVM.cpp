@@ -795,6 +795,9 @@ struct Log2OpLowering : public UnaryOpLLVMOpLowering<Log2Op, LLVM::Log2Op> {
 struct NegFOpLowering : public UnaryOpLLVMOpLowering<NegFOp, LLVM::FNegOp> {
   using Super::Super;
 };
+struct NegIOpLowering : public UnaryOpLLVMOpLowering<NegIOp, LLVM::FNegOp> {
+  using Super::Super;
+};
 struct AddIOpLowering : public BinaryOpLLVMOpLowering<AddIOp, LLVM::AddOp> {
   using Super::Super;
 };
@@ -2096,6 +2099,7 @@ void mlir::populateStdToLLVMNonMemoryConversionPatterns(
       MulFOpLowering,
       MulIOpLowering,
       NegFOpLowering,
+      NegIOpLowering,
       OrOpLowering,
       PrefetchOpLowering,
       RemFOpLowering,

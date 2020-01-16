@@ -561,6 +561,32 @@ The `exp` operation takes one operand and returns one result of the same type.
 This type may be a float scalar type, a vector whose element type is float, or a
 tensor of floats. It has no standard attributes.
 
+### 'negi' operation
+
+Syntax:
+
+```
+operation ::= ssa-id `=` `negi` ssa-use `:` type
+```
+
+Examples:
+
+```mlir
+// Scalar negation value.
+%a = negi %b : i32
+
+// SIMD vector element-wise negation value.
+%f = negi %g : vector<4xi32>
+
+// Tensor element-wise negation value.
+%x = negi % y : tensor<4x?xi8>
+```
+
+The `negi` operation computes the negation of a given value. It takes one
+operand and returns one result of the same type. This type may be an integer
+scalar type, a vector whose element type is float, or a tensor of integers. It
+has no standard attributes.
+
 ### 'negf' operation
 
 Syntax:
